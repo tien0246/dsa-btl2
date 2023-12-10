@@ -491,7 +491,7 @@ class minHeap {
         //         }
         //     }
         // }
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < min(n, size); i++) {
             list.push_back(temp[i].areaPtr);
         }
         return list;
