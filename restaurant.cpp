@@ -84,10 +84,7 @@ class HuffTree {
             delete (node);
         }
     }
-    ~HuffTree() {
-        // removeHuffTree(Root);
-        // Root = nullptr;
-    }  // Destructor
+    ~HuffTree() {}  // Destructor
 
     HuffNode* root() { return Root; }  // Get root
     void setRoot(HuffNode* node) { Root = node; }
@@ -107,8 +104,8 @@ class HuffTree {
         HuffNode* temp = root->right();
         root->setRight(temp->left());
         temp->setLeft(root);
-        root->update();
-        temp->update();
+        // root->update();  // No need
+        // temp->update();
         return temp;
     }
 
@@ -116,8 +113,8 @@ class HuffTree {
         HuffNode* temp = root->left();
         root->setLeft(temp->right());
         temp->setRight(root);
-        root->update();
-        temp->update();
+        // root->update();  // No need
+        // temp->update();
         return temp;
     }
 
@@ -139,13 +136,17 @@ class HuffTree {
         }
     }
 
-    void printInorder(HuffNode* root) {
+    void printInorder(HuffNode* root, string& result) {
         if (root == nullptr) return;
-        printInorder(root->left());
+        printInorder(root->left(), result);
         if (root->isLeaf()) {
-            cout << root->val() << "\n";
-        } else cout << root->weight() << "\n";
-        printInorder(root->right());
+            result += root->val();
+            result += "\n";
+        } else {
+            result += to_string(root->weight());
+            result += "\n";
+        }
+        printInorder(root->right(), result);
     }
 
     HuffNode* checkRotate(HuffNode* root, int& count, bool& unreal) {
@@ -199,9 +200,6 @@ class customer {
         tree->removeHuffTree(tree->root());
         delete (tree);
     }
-    void printInorder() {
-        tree->printInorder(tree->root());
-    }
 };
 
 class hashBST {
@@ -239,6 +237,9 @@ class hashBST {
     void remove(int id, int n) {  // TODO: ???????
         if (table[id]->root == nullptr) return;
         table[id]->remove(n);
+        if (table[id]->root == nullptr) {
+            delete (table[id]);
+        }
     }
 
     vector<int> postorder(int id) {
@@ -304,7 +305,7 @@ class hashBST {
                 delete (cus);
             }
         }
-        void removeTree(BSTNode* root) {
+        void removeTree(BSTNode*& root) {
             if (root == nullptr) return;
             removeTree(root->left);
             removeTree(root->right);
@@ -324,7 +325,16 @@ class hashBST {
             q.push(cus);
         }
         void remove(int n) {
-            n = (n > q.size()) ? q.size() : n;
+            if (n >= q.size()) {
+                removeTree(root);
+                cout << root << endl;
+                while (!q.empty()) {
+                    customer* cus = q.front();
+                    q.pop();
+                    delete (cus);
+                }
+                return;
+            }
             while (n--) {
                 customer* cus = q.front();
                 q.pop();
@@ -556,7 +566,7 @@ class restaurant {
     int maxsize;
     hashBST* gojo;
     minHeap* sukuna;
-    customer* lastCustomer;
+    string lastCustomer;
 
    public:
     struct compare {
@@ -571,7 +581,7 @@ class restaurant {
     };
 
    public:
-    restaurant() : maxsize(0) {}
+    restaurant() : maxsize(0), gojo(nullptr), sukuna(nullptr), lastCustomer("") {}
     ~restaurant() {
         delete (gojo);
         delete (sukuna);
@@ -605,18 +615,41 @@ class restaurant {
         return num;
     }
 
-    int permutePostOrder(vector<int>& list, int l, int r) {  // FIXME: Big O(2^n) lol
-        int count = 1;
-        if (r - l < 3) return 1;
-        int root = list[r];
-        int i = l;
-        for (; i < r; i++)
-            if (list[i] > root) break;
+    void calculateFact(int fact[], int N) {
+        fact[0] = 1;
+        for (long long int i = 1; i < N; i++) {
+            fact[i] = fact[i - 1] * i;
+        }
+    }
 
-        if (i == r) count = 2 * permutePostOrder(list, l, r - 1);
-        else if (i == l) count = 2 * permutePostOrder(list, l + 1, r);
-        else count = 2 * permutePostOrder(list, l, i - 1) * permutePostOrder(list, i, r - 1);
-        return count;
+    int nCr(int fact[], int N, int R) {
+        if (R > N) return 0;
+        int res = fact[N] / fact[R];
+        res /= fact[N - R];
+        return res;
+    }
+
+    int countWays(vector<int>& arr, int fact[]) {
+        int N = arr.size();
+        if (N <= 2) return 1;
+        vector<int> leftSubTree;
+        vector<int> rightSubTree;
+        int root = arr[0];
+        for (int i = 1; i < N; i++) {
+            if (arr[i] < root) leftSubTree.push_back(arr[i]);
+            else rightSubTree.push_back(arr[i]);
+        }
+        int N1 = leftSubTree.size();
+        int N2 = rightSubTree.size();
+        int countLeft = countWays(leftSubTree, fact);
+        int countRight = countWays(rightSubTree, fact);
+        return nCr(fact, N - 1, N1) * countLeft * countRight;
+    }
+
+    int permutePostOrder(vector<int>& list, int size) {
+        int fact[size];
+        calculateFact(fact, size);
+        return countWays(list, fact);
     }
 };
 
@@ -691,10 +724,15 @@ void restaurant::LAPSE(string name) {
     std::sort(listChr.begin(), listChr.end(), [](const letter& a, const letter& b) {
         if (a.freq != b.freq) {
             return a.freq < b.freq;
-        } else {
+        } else if ((a.encodeCaesar < 'a' && b.encodeCaesar < 'a') || (a.encodeCaesar >= 'a' && b.encodeCaesar >= 'a')) {
             return a.encodeCaesar < b.encodeCaesar;
         }
+        return a.encodeCaesar > b.encodeCaesar;
     });
+
+    for (int i = 0; i < listChr.size(); i++) {
+        cout << listChr[i].encodeCaesar << " " << listChr[i].freq << endl;
+    }
 
     priority_queue<HuffTree*, vector<HuffTree*>, compare> pq;
     for (int i = 0; i < listChr.size(); i++) {
@@ -719,6 +757,8 @@ void restaurant::LAPSE(string name) {
     tree = pq.top();
     pq.pop();
     cus->tree = tree;
+    lastCustomer = "";
+    tree->printInorder(tree->root(), lastCustomer);
     if (unreal) {
         delete (cus);
         return;
@@ -738,7 +778,6 @@ void restaurant::LAPSE(string name) {
     encodeBin = (length > 10) ? encodeBin.substr(length - 10) : encodeBin;
     cus->Result = bin2dec(encodeBin);
     // cout << cus->Result << endl;
-    lastCustomer = cus;
     (cus->Result % 2) ? gojo->insert(cus) : sukuna->insert(cus);
 }
 
@@ -748,7 +787,7 @@ void restaurant::KOKUSEN() {
         list = gojo->postorder(i);
         int size = list.size();
         if (!size) continue;
-        int numPermute = permutePostOrder(list, 0, size - 1) % maxsize;
+        int numPermute = permutePostOrder(list, size) % maxsize;
         gojo->remove(i, numPermute);
     }
 }
@@ -758,8 +797,7 @@ void restaurant::KEITEIKEN(int num) {
 }
 
 void restaurant::HAND() {
-    if (lastCustomer == nullptr) return;
-    lastCustomer->printInorder();
+    cout << lastCustomer;
 }
 
 void restaurant::LIMITLESS(int num) {

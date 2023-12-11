@@ -2,7 +2,11 @@
 #include "restaurant.cpp"
 
 int main(int argc, char* argv[]) {
-    string fileName = "test.txt";
+    if (argc < 2)
+        return 1;
+    string fileName = argv[1];
+
+    // string fileName = "test.txt";
     simulate(fileName);
     return 0;
 }
