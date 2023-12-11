@@ -101,6 +101,7 @@ class HuffTree {
     }
 
     HuffNode* rotateLeft(HuffNode* root) {
+        cout << "Rotate left" << endl;
         HuffNode* temp = root->right();
         root->setRight(temp->left());
         temp->setLeft(root);
@@ -110,6 +111,7 @@ class HuffTree {
     }
 
     HuffNode* rotateRight(HuffNode* root) {
+        cout << "rotate right\n";
         HuffNode* temp = root->left();
         root->setLeft(temp->right());
         temp->setRight(root);
@@ -136,9 +138,9 @@ class HuffTree {
         }
     }
 
-    void printInorder(HuffNode* root, string& result) {
+    void getInorderTree(HuffNode* root, string& result) {
         if (root == nullptr) return;
-        printInorder(root->left(), result);
+        getInorderTree(root->left(), result);
         if (root->isLeaf()) {
             result += root->val();
             result += "\n";
@@ -146,7 +148,7 @@ class HuffTree {
             result += to_string(root->weight());
             result += "\n";
         }
-        printInorder(root->right(), result);
+        getInorderTree(root->right(), result);
     }
 
     HuffNode* checkRotate(HuffNode* root, int& count, bool& unreal) {
@@ -171,7 +173,7 @@ class HuffTree {
             }
             count++;
         }
-        if (root->isLeaf() && (root->right() == nullptr || root->left() == nullptr)) unreal = true;
+        if (root->isLeaf() && (root->right() != nullptr || root->left() != nullptr)) unreal = true;
         root->setLeft(checkRotate(root->left(), count, unreal));
         root->setRight(checkRotate(root->right(), count, unreal));
         return root;
@@ -571,7 +573,10 @@ class restaurant {
    public:
     struct compare {
         bool operator()(HuffTree* l, HuffTree* r) {
-            return (l->weight() > r->weight());
+            if (l->weight() != r->weight()) {
+                return (l->weight() > r->weight());
+            }
+            return l > r;
         }
     };
 
@@ -649,6 +654,7 @@ class restaurant {
     int permutePostOrder(vector<int>& list, int size) {
         int fact[size];
         calculateFact(fact, size);
+        reverse(list.begin(), list.end());
         return countWays(list, fact);
     }
 };
@@ -729,15 +735,12 @@ void restaurant::LAPSE(string name) {
         }
         return a.encodeCaesar > b.encodeCaesar;
     });
-
-    for (int i = 0; i < listChr.size(); i++) {
-        cout << listChr[i].encodeCaesar << " " << listChr[i].freq << endl;
-    }
-
     priority_queue<HuffTree*, vector<HuffTree*>, compare> pq;
-    for (int i = 0; i < listChr.size(); i++) {
-        pq.push(new HuffTree(listChr[i].encodeCaesar, listChr[i].freq));
+    for (auto& chr : listChr) {
+        cout << chr.encodeCaesar << " " << chr.freq << endl;
+        pq.push(new HuffTree(chr.encodeCaesar, chr.freq));
     }
+    cout << "--------------------------\n";
     bool unreal = false;
     int count = 0;
     HuffTree *temp1, *temp2, *tree;
@@ -747,7 +750,11 @@ void restaurant::LAPSE(string name) {
         temp2 = pq.top();
         pq.pop();
         tree = new HuffTree(temp1, temp2);
+        tree->printHuffmanTree(tree->root());
+        cout << "--------------------------\n";
         tree->setRoot(tree->checkRotate(tree->root(), count, unreal));
+        tree->printHuffmanTree(tree->root());
+        cout << "--------------------------\n";
         pq.push(tree);
 
         delete (temp1);
@@ -757,27 +764,28 @@ void restaurant::LAPSE(string name) {
     tree = pq.top();
     pq.pop();
     cus->tree = tree;
-    lastCustomer = "";
-    tree->printInorder(tree->root(), lastCustomer);
     if (unreal) {
         delete (cus);
         return;
     }
+    lastCustomer = "";
+    tree->getInorderTree(tree->root(), lastCustomer);
     // print Huffman tree
-    // tree->printHuffmanTree(tree->root());
+    tree->printHuffmanTree(tree->root());
     unordered_map<char, string> list;
     tree->getEncodeList(tree->root(), "", list);
-
-    for (int i = length - 1; i >= max(0, length - 10); i--) {
+    for (auto& entry : list) {
+        cout << entry.first << " " << entry.second << endl;
+    }
+    for (int i = length - 1; i >= 0 && encodeBin.length() < 10; i--) {
         char character = encode[i];
         auto it = list.find(character);
         encodeBin = it->second + encodeBin;
     }
-
-    length = encodeBin.length();
-    encodeBin = (length > 10) ? encodeBin.substr(length - 10) : encodeBin;
+    encodeBin = (encodeBin.length() > 10) ? encodeBin.substr(encodeBin.length() - 10, 10) : encodeBin;
+    reverse(encodeBin.begin(), encodeBin.end());
     cus->Result = bin2dec(encodeBin);
-    // cout << cus->Result << endl;
+    cout << cus->Result << endl;
     (cus->Result % 2) ? gojo->insert(cus) : sukuna->insert(cus);
 }
 
