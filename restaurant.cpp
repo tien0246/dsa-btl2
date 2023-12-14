@@ -152,7 +152,7 @@ class HuffTree {
     }
 
     HuffNode* checkRotate(HuffNode* root, int& count, bool& unreal) {
-        if (count == 2) return root;
+        if (count == 3) return root;
         if (unreal) return root;
         if (root->isLeaf()) return root;
         if (getBalance(root) > 1) {
