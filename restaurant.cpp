@@ -221,7 +221,7 @@ class hashBST {
         table = vector<BSTTree*>(size + 1, nullptr);
     }
     ~hashBST() {
-        for (int i = 0; i < table.size(); i++) {
+        for (unsigned int i = 0; i < table.size(); i++) {
             if (table[i] != nullptr) {
                 delete (table[i]);
             }
@@ -326,7 +326,7 @@ class hashBST {
             root = insert(root, cus->Result);
             q.push(cus);
         }
-        void remove(int n) {
+        void remove(unsigned int n) {
             if (n >= q.size()) {
                 removeTree(root);
                 cout << root << endl;
@@ -614,7 +614,7 @@ class restaurant {
     }
     int bin2dec(string str) {
         int num = 0;
-        for (int i = 0; i < str.length(); i++) {
+        for (unsigned int i = 0; i < str.length(); i++) {
             num = (num << 1) + (str[i] - '0');
         }
         return num;
@@ -645,7 +645,7 @@ class restaurant {
             else rightSubTree.push_back(arr[i]);
         }
         int N1 = leftSubTree.size();
-        int N2 = rightSubTree.size();
+        // int N2 = rightSubTree.size();
         int countLeft = countWays(leftSubTree, fact);
         int countRight = countWays(rightSubTree, fact);
         return nCr(fact, N - 1, N1) * countLeft * countRight;
@@ -718,8 +718,8 @@ void restaurant::LAPSE(string name) {
         listChr.push_back(entry.second);
     }
 
-    for (int i = 0; i < listChr.size() - 1; i++) {
-        for (int j = i + 1; j < listChr.size(); j++) {
+    for (unsigned int i = 0; i < listChr.size() - 1; i++) {
+        for (unsigned int j = i + 1; j < listChr.size(); j++) {
             if (listChr[i].encodeCaesar == listChr[j].encodeCaesar) {
                 listChr[i].freq += listChr[j].freq;
                 listChr.erase(listChr.begin() + j);
