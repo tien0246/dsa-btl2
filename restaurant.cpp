@@ -111,7 +111,7 @@ class HuffTree {
     }
 
     HuffNode* rotateRight(HuffNode* root) {
-        cout << "rotate right\n";
+        cout << "Rotate right\n";
         HuffNode* temp = root->left();
         root->setLeft(temp->right());
         temp->setRight(root);
@@ -130,10 +130,10 @@ class HuffTree {
             cout << string(indent, ' ') << "Leaf: " << leaf->val() << " (" << leaf->weight() << ")" << endl;
         } else {
             IntlNode* intl = static_cast<IntlNode*>(root);
-            cout << string(indent, ' ') << "Internal Node: " << intl->weight() << endl;
-            cout << string(indent, ' ') << "├─ Left: " << endl;
+            cout << string(indent, ' ') << "Internal Node: " << intl->weight() << " (Height: " << getHight(intl) << ")" << endl;
+            cout << string(indent, ' ') << "├─ Left:" << endl;
             printHuffmanTree(intl->left(), indent + 4);
-            cout << string(indent, ' ') << "└─ Right: " << endl;
+            cout << string(indent, ' ') << "└─ Right:" << endl;
             printHuffmanTree(intl->right(), indent + 4);
         }
     }
@@ -151,8 +151,7 @@ class HuffTree {
         getInorderTree(root->right(), result);
     }
 
-    HuffNode* checkRotate(HuffNode* root, int& count, bool& unreal) {
-        if (count == 3) return root;
+    HuffNode* checkRotate(HuffNode* root, bool& isRotate, bool& unreal) {
         if (unreal) return root;
         if (root->isLeaf()) return root;
         if (getBalance(root) > 1) {
@@ -162,21 +161,34 @@ class HuffTree {
                 root->setLeft(rotateLeft(root->left()));
                 root = rotateRight(root);
             }
-            count++;
+            if (root->isLeaf() && (root->right() != nullptr || root->left() != nullptr)) unreal = true;
+            isRotate = true;
+            return root;
         } else if (getBalance(root) < -1) {
             if (getBalance(root->right()) <= 0) {
                 root = rotateLeft(root);
-                count++;
             } else {
                 root->setRight(rotateRight(root->right()));
                 root = rotateLeft(root);
             }
-            count++;
+            if (root->isLeaf() && (root->right() != nullptr || root->left() != nullptr)) unreal = true;
+            isRotate = true;
+            return root;
         }
-        if (root->isLeaf() && (root->right() != nullptr || root->left() != nullptr)) unreal = true;
-        root->setLeft(checkRotate(root->left(), count, unreal));
-        root->setRight(checkRotate(root->right(), count, unreal));
+        if (!isRotate) root->setLeft(checkRotate(root->left(), isRotate, unreal));
+        if (!isRotate) root->setRight(checkRotate(root->right(), isRotate, unreal));
         return root;
+    }
+
+    bool rotateTree() {
+        bool unreal = false;
+        for (int i = 0; i < 3; i++) {
+            bool isRotate = false;
+            // printHuffmanTree(Root);
+            Root = checkRotate(Root, isRotate, unreal);
+            if (unreal || !isRotate) return unreal;
+        }
+        return unreal;
     }
 
     void getEncodeList(HuffNode* root, string str, unordered_map<char, string>& encodingMap) {
@@ -185,7 +197,6 @@ class HuffTree {
         if (root->isLeaf()) {
             encodingMap[root->val()] = str;
         }
-
         getEncodeList(root->left(), str + "0", encodingMap);
         getEncodeList(root->right(), str + "1", encodingMap);
     }
@@ -737,12 +748,11 @@ void restaurant::LAPSE(string name) {
     });
     priority_queue<HuffTree*, vector<HuffTree*>, compare> pq;
     for (auto& chr : listChr) {
-        cout << chr.encodeCaesar << " " << chr.freq << endl;
+        // cout << chr.encodeCaesar << " " << chr.freq << endl;
         pq.push(new HuffTree(chr.encodeCaesar, chr.freq));
     }
-    cout << "--------------------------\n";
     bool unreal = false;
-    int count = 0;
+    int i = 0;
     HuffTree *temp1, *temp2, *tree;
     while (pq.size() > 1) {
         temp1 = pq.top();
@@ -750,16 +760,20 @@ void restaurant::LAPSE(string name) {
         temp2 = pq.top();
         pq.pop();
         tree = new HuffTree(temp1, temp2);
-        tree->printHuffmanTree(tree->root());
-        cout << "--------------------------\n";
-        tree->setRoot(tree->checkRotate(tree->root(), count, unreal));
-        tree->printHuffmanTree(tree->root());
-        cout << "--------------------------\n";
-        pq.push(tree);
 
+        cout << "Iteration " << i++ << ":" << endl;
+        cout << "sub tree 1--------------------------------------------------" << endl;
+        temp1->printHuffmanTree(temp1->root());
+        cout << "sub tree 2--------------------------------------------------" << endl;
+        temp2->printHuffmanTree(temp2->root());
+        unreal = tree->rotateTree();
+        cout << "new tree----------------------------------------------------" << endl;
+        tree->printHuffmanTree(tree->root());
+        cout << "------------------------------------------------------------" << endl << endl;
+
+        pq.push(tree);
         delete (temp1);
         delete (temp2);
-        count = 0;
     }
     tree = pq.top();
     pq.pop();
@@ -771,12 +785,9 @@ void restaurant::LAPSE(string name) {
     lastCustomer = "";
     tree->getInorderTree(tree->root(), lastCustomer);
     // print Huffman tree
-    tree->printHuffmanTree(tree->root());
+    // tree->printHuffmanTree(tree->root());
     unordered_map<char, string> list;
     tree->getEncodeList(tree->root(), "", list);
-    for (auto& entry : list) {
-        cout << entry.first << " " << entry.second << endl;
-    }
     for (int i = length - 1; i >= 0 && encodeBin.length() < 10; i--) {
         char character = encode[i];
         auto it = list.find(character);
@@ -796,6 +807,9 @@ void restaurant::KOKUSEN() {
         int size = list.size();
         if (!size) continue;
         int numPermute = permutePostOrder(list, size) % maxsize;
+
+        cout << "Hoan vi " << numPermute << ":\n";
+
         gojo->remove(i, numPermute);
     }
 }
@@ -821,6 +835,7 @@ void simulate(string filename) {
     ifstream ss(filename);
     string str, name, maxsize, num;
     while (ss >> str) {
+        cout << str << endl;
         if (str == "MAXSIZE") {
             ss >> maxsize;
             res->setMAXSIZE(stoi(maxsize));
