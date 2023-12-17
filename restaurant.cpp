@@ -808,7 +808,7 @@ void restaurant::KOKUSEN() {
         if (!size) continue;
         int numPermute = permutePostOrder(list, size) % maxsize;
 
-        cout << "Hoan vi " << numPermute << ":\n";
+        cout << "Hoan vi: " << numPermute << "\n";
 
         gojo->remove(i, numPermute);
     }
