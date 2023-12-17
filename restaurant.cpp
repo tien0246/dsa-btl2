@@ -255,19 +255,30 @@ class hashBST {
         }
     }
 
+    void postorderTraversal(BSTNode* root, vector<int>& result) {
+        if (root == NULL) {
+            return;
+        }
+        postorderTraversal(root->left, result);
+        postorderTraversal(root->right, result);
+        result.push_back(root->result);
+    }
+
     vector<int> postorder(int id) {
         vector<int> list;
-        stack<BSTNode*> st;
+        // stack<BSTNode*> st;
         BSTTree* tree = table[id];
         if (tree == nullptr) return list;
-        st.push(tree->root);
-        while (!st.empty()) {
-            BSTNode* node = st.top();
-            st.pop();
-            list.push_back(node->result);
-            if (node->left != nullptr) st.push(node->left);
-            if (node->right != nullptr) st.push(node->right);
-        }
+        postorderTraversal(tree->root, list);
+        // st.push(tree->root);
+        // while (!st.empty()) {
+        //     BSTNode* node = st.top();
+        //     st.pop();
+        //     cout << node->result << " ";
+        //     list.push_back(node->result);
+        //     if (node->left != nullptr) st.push(node->left);
+        //     if (node->right != nullptr) st.push(node->right);
+        // }
         return list;
     }
 
@@ -340,7 +351,6 @@ class hashBST {
         void remove(unsigned int n) {
             if (n >= q.size()) {
                 removeTree(root);
-                cout << root << endl;
                 while (!q.empty()) {
                     customer* cus = q.front();
                     q.pop();
@@ -554,11 +564,11 @@ class minHeap {
             }
         }
 
-        void printQueueHelper(queue<customer*> q, int n) {
-            if (q.empty() || n == 0) return;
-            customer* cus = q.front();
-            q.pop();
-            printQueueHelper(q, n - 1);
+        void printQueueHelper(queue<customer*> queueCus, int n) {
+            if (queueCus.empty() || n == 0) return;
+            customer* cus = queueCus.front();
+            queueCus.pop();
+            printQueueHelper(queueCus, n - 1);
             cout << label << "-" << cus->Result << "\n";
         }
 
@@ -769,7 +779,8 @@ void restaurant::LAPSE(string name) {
         unreal = tree->rotateTree();
         cout << "new tree----------------------------------------------------" << endl;
         tree->printHuffmanTree(tree->root());
-        cout << "------------------------------------------------------------" << endl << endl;
+        cout << "------------------------------------------------------------" << endl
+             << endl;
 
         pq.push(tree);
         delete (temp1);
@@ -804,12 +815,14 @@ void restaurant::KOKUSEN() {
     vector<int> list;
     for (int i = 1; i <= maxsize; i++) {
         list = gojo->postorder(i);
+        // for (auto& num : list) {
+        //     cout << num << " ";
+        // }
         int size = list.size();
         if (!size) continue;
-        int numPermute = permutePostOrder(list, size) % maxsize;
-
+        int numPermute = permutePostOrder(list, size);
         cout << "Hoan vi: " << numPermute << "\n";
-
+        numPermute %= maxsize;
         gojo->remove(i, numPermute);
     }
 }
