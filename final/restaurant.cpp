@@ -49,10 +49,7 @@ class IntlNode : public HuffNode {
         rc = r;
         pa = p;
     }
-    ~IntlNode() {
-        // delete lc;
-        // delete rc;
-    }
+    ~IntlNode() { }
     int weight() { return wgt; }
     bool isLeaf() { return false; }
     HuffNode* left() const { return lc; }
@@ -101,41 +98,17 @@ class HuffTree {
     }
 
     HuffNode* rotateLeft(HuffNode* root) {
-        cout << "Rotate left" << endl;
         HuffNode* temp = root->right();
         root->setRight(temp->left());
         temp->setLeft(root);
-        // root->update();  // No need
-        // temp->update();
         return temp;
     }
 
     HuffNode* rotateRight(HuffNode* root) {
-        cout << "Rotate right\n";
         HuffNode* temp = root->left();
         root->setLeft(temp->right());
         temp->setRight(root);
-        // root->update();  // No need
-        // temp->update();
         return temp;
-    }
-
-    void printHuffmanTree(HuffNode* root, int indent = 0) {
-        if (root == nullptr) {
-            return;
-        }
-
-        if (root->isLeaf()) {
-            LeafNode* leaf = static_cast<LeafNode*>(root);
-            cout << string(indent, ' ') << "Leaf: " << leaf->val() << " (" << leaf->weight() << ")" << endl;
-        } else {
-            IntlNode* intl = static_cast<IntlNode*>(root);
-            cout << string(indent, ' ') << "Internal Node: " << intl->weight() << " (Height: " << getHight(intl) << ")" << endl;
-            cout << string(indent, ' ') << "├─ Left:" << endl;
-            printHuffmanTree(intl->left(), indent + 4);
-            cout << string(indent, ' ') << "└─ Right:" << endl;
-            printHuffmanTree(intl->right(), indent + 4);
-        }
     }
 
     void getInorderTree(HuffNode* root, string& result) {
@@ -247,7 +220,7 @@ class hashBST {
         table[id]->insert(cus);
     }
 
-    void remove(int id, int n) {  // TODO: ???????
+    void remove(int id, int n) {
         if (table[id]->root == nullptr) return;
         table[id]->remove(n);
         if (table[id]->root == nullptr) {
@@ -256,9 +229,7 @@ class hashBST {
     }
 
     void postorderTraversal(BSTNode* root, vector<int>& result) {
-        if (root == NULL) {
-            return;
-        }
+        if (root == NULL) return;
         postorderTraversal(root->left, result);
         postorderTraversal(root->right, result);
         result.push_back(root->result);
@@ -266,38 +237,10 @@ class hashBST {
 
     vector<int> postorder(int id) {
         vector<int> list;
-        // stack<BSTNode*> st;
         BSTTree* tree = table[id];
         if (tree == nullptr) return list;
         postorderTraversal(tree->root, list);
-        // st.push(tree->root);
-        // while (!st.empty()) {
-        //     BSTNode* node = st.top();
-        //     st.pop();
-        //     cout << node->result << " ";
-        //     list.push_back(node->result);
-        //     if (node->left != nullptr) st.push(node->left);
-        //     if (node->right != nullptr) st.push(node->right);
-        // }
         return list;
-    }
-
-    void printTree(int id) {
-        BSTTree* tree = table[id];
-        if (tree == nullptr) return;
-        printTree(tree->root, "", true);
-    }
-
-    void printTree(BSTNode* node, const string& prefix, bool isLeft) {
-        if (node == nullptr) return;
-
-        cout << prefix;
-        cout << (isLeft ? "├── " : "└── ");
-        cout << node->result << endl;
-
-        string childPrefix = prefix + (isLeft ? "│   " : "    ");
-        printTree(node->left, childPrefix, true);
-        printTree(node->right, childPrefix, false);
     }
 
     void printInorder(BSTNode* root) {
@@ -390,11 +333,6 @@ class hashBST {
             }
             return root;
         }
-        customer* search(customer* root, int Result) {  // FIXME: ??????????
-            if (root == nullptr || root->Result == Result) return root;
-            if (root->Result < Result) return search(root->right, Result);
-            return search(root->left, Result);
-        }
     };
 };
 
@@ -418,12 +356,6 @@ class minHeap {
             if (table[i] != nullptr) {
                 delete (table[i]);
             }
-        }
-    }
-
-    void printHeap() {
-        for (int i = 1; i <= size; i++) {
-            cout << table[i]->label << " " << table[i]->num << " " << table[i]->time << endl;
         }
     }
 
@@ -517,13 +449,6 @@ class minHeap {
         sort(temp.begin(), temp.end(), [](const tempArea& a, const tempArea& b) {
             return (a.num < b.num) || ((a.num == b.num) && (a.time < b.time));
         });
-        // for (int i = 0; i < temp.size() - 1; i++) {
-        //     for (int j = 0; j < temp.size() - i - 1; j++) {
-        //         if ((temp[j].num > temp[j + 1].num) || (temp[j].num == temp[j + 1].num && temp[j].time > temp[j + 1].time)) {
-        //             swap(temp[j], temp[j + 1]);
-        //         }
-        //     }
-        // }
         for (int i = 0; i < min(n, size); i++) {
             list.push_back(temp[i].areaPtr);
         }
@@ -681,50 +606,15 @@ void restaurant::LAPSE(string name) {
         charFrequency[c].freq++;
     }
     for (auto& entry : charFrequency) {
-        // letter chr;
-        // chr.orig = entry.first;
-        // chr.freq = entry.second;
         entry.second.encodeCaesar = encodeCaesar(entry.first, entry.second.freq);
-        // listChr.push_back(chr);
     }
-
-    // for (char c : name) {
-    //     bool found = false;
-    //     for (auto& chr : listChr) {
-    //         if (chr.orig == c) {
-    //             chr.freq++;
-    //             found = true;
-    //             break;
-    //         }
-    //     }
-    //     if (!found) {
-    //         letter temp;
-    //         temp.orig = c;
-    //         temp.freq = 1;
-    //         listChr.push_back(temp);
-    //     }
-    // }
     if (charFrequency.size() < 3) return;
     customer* cus = new customer;
-    // for (int i = 0; i < listChr.size() - 1; i++) {
-    //     for (int j = 0; j < listChr.size() - i - 1; j++) {
-    //         if (listChr[j].freq > listChr[j + 1].freq) {
-    //             swap(listChr[j], listChr[j + 1]);
-    //         }
-    //     }
-    // }
-    // for (auto& chr : listChr) {
 
-    // }
     for (auto& c : name) {
-        // for (auto& chr : listChr) {
-        //     if (chr.orig == c) {
-        //         encode += chr.encodeCaesar;
-        //         break;
-        //     }
-        // }
         encode += charFrequency[c].encodeCaesar;
     }
+
     for (auto& entry : charFrequency) {
         listChr.push_back(entry.second);
     }
@@ -748,11 +638,9 @@ void restaurant::LAPSE(string name) {
     });
     priority_queue<HuffTree*, vector<HuffTree*>, compare> pq;
     for (auto& chr : listChr) {
-        // cout << chr.encodeCaesar << " " << chr.freq << endl;
         pq.push(new HuffTree(chr.encodeCaesar, chr.freq));
     }
     bool unreal = false;
-    // int i = 0;
     HuffTree *temp1, *temp2, *tree;
     while (pq.size() > 1) {
         temp1 = pq.top();
@@ -760,18 +648,7 @@ void restaurant::LAPSE(string name) {
         temp2 = pq.top();
         pq.pop();
         tree = new HuffTree(temp1, temp2);
-
-        // cout << "Iteration " << i++ << ":" << endl;
-        // cout << "sub tree 1--------------------------------------------------" << endl;
-        // temp1->printHuffmanTree(temp1->root());
-        // cout << "sub tree 2--------------------------------------------------" << endl;
-        // temp2->printHuffmanTree(temp2->root());
         unreal = tree->rotateTree();
-        // cout << "new tree----------------------------------------------------" << endl;
-        // tree->printHuffmanTree(tree->root());
-        // cout << "------------------------------------------------------------" << endl
-        //      << endl;
-
         pq.push(tree);
         delete (temp1);
         delete (temp2);
@@ -783,13 +660,13 @@ void restaurant::LAPSE(string name) {
         delete (cus);
         return;
     }
+
     lastCustomer = "";
     tree->getInorderTree(tree->root(), lastCustomer);
-    // print Huffman tree
-    tree->printHuffmanTree(tree->root());
-    cout << "------------------------------------------------------------" << endl;
+
     unordered_map<char, string> list;
     tree->getEncodeList(tree->root(), "", list);
+
     for (int i = length - 1; i >= 0 && encodeBin.length() < 10; i--) {
         char character = encode[i];
         auto it = list.find(character);
@@ -798,7 +675,6 @@ void restaurant::LAPSE(string name) {
     encodeBin = (encodeBin.length() > 10) ? encodeBin.substr(encodeBin.length() - 10, 10) : encodeBin;
     reverse(encodeBin.begin(), encodeBin.end());
     cus->Result = bin2dec(encodeBin);
-    cout << cus->Result << endl;
     (cus->Result % 2) ? gojo->insert(cus) : sukuna->insert(cus);
 }
 
@@ -806,12 +682,8 @@ void restaurant::KOKUSEN() {
     vector<int> list;
     for (int i = 1; i <= maxsize; i++) {
         list = gojo->postorder(i);
-        // for (auto& num : list) {
-        //     cout << num << " ";
-        // }
         if (!list.size()) continue;
-        unsigned long long numPermute = permutePostOrder(list) % maxsize;
-        if (numPermute > 0) cout << "Hoan vi: " << numPermute << "\n";
+        int numPermute = permutePostOrder(list) % maxsize;
         gojo->remove(i, numPermute);
     }
 }
@@ -837,7 +709,6 @@ void simulate(string filename) {
     ifstream ss(filename);
     string str, name, maxsize, num;
     while (ss >> str) {
-        cout << str << endl;
         if (str == "MAXSIZE") {
             ss >> maxsize;
             res->setMAXSIZE(stoi(maxsize));
