@@ -564,17 +564,18 @@ class minHeap {
             }
         }
 
-        void printQueueHelper(queue<customer*> queueCus, int n) {
-            if (queueCus.empty() || n == 0) return;
-            customer* cus = queueCus.front();
-            queueCus.pop();
-            printQueueHelper(queueCus, n - 1);
-            cout << label << "-" << cus->Result << "\n";
-        }
-
         void printQueue(int n) {
             queue<customer*> temp = q;
-            printQueueHelper(temp, n);
+            stack<customer*> st;
+            while (!temp.empty()) {
+                st.push(temp.front());
+                temp.pop();
+            }
+            while (!st.empty() && n--) {
+                customer* cus = st.top();
+                st.pop();
+                cout << label << "-" << cus->Result << "\n";
+            }
         }
     };
     struct tempArea {
