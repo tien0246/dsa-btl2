@@ -642,21 +642,18 @@ class restaurant {
         return num;
     }
 
-    void calculateFact(int fact[], int N) {
-        fact[0] = 1;
-        for (long long int i = 1; i < N; i++) {
-            fact[i] = fact[i - 1] * i;
+    unsigned long long nCr(int n, int r) {
+        if (r > n - r) r = n - r;  // C(n, r) == C(n, n - r)
+        long long ans = 1;
+        for (int i = 1; i <= r; i++) {
+            ans *= n - r + i;
+            ans /= i;
+            ans % maxsize;
         }
+        return ans % maxsize;
     }
 
-    int nCr(int fact[], int N, int R) {
-        if (R > N) return 0;
-        int res = fact[N] / fact[R];
-        res /= fact[N - R];
-        return res;
-    }
-
-    int countWays(vector<int>& arr, int fact[]) {
+    unsigned long long countWays(vector<int>& arr) {
         int N = arr.size();
         if (N <= 2) return 1;
         vector<int> leftSubTree;
@@ -666,18 +663,15 @@ class restaurant {
             if (arr[i] < root) leftSubTree.push_back(arr[i]);
             else rightSubTree.push_back(arr[i]);
         }
-        int N1 = leftSubTree.size();
-        // int N2 = rightSubTree.size();
-        int countLeft = countWays(leftSubTree, fact);
-        int countRight = countWays(rightSubTree, fact);
-        return nCr(fact, N - 1, N1) * countLeft * countRight;
+        unsigned long long N1 = leftSubTree.size();
+        unsigned long long countLeft = countWays(leftSubTree);
+        unsigned long long countRight = countWays(rightSubTree);
+        return nCr(N - 1, N1) * countLeft * countRight % maxsize;
     }
 
-    int permutePostOrder(vector<int>& list, int size) {
-        int fact[size];
-        calculateFact(fact, size);
+    unsigned long long permutePostOrder(vector<int>& list) {
         reverse(list.begin(), list.end());
-        return countWays(list, fact);
+        return countWays(list);
     }
 };
 
@@ -763,7 +757,7 @@ void restaurant::LAPSE(string name) {
         pq.push(new HuffTree(chr.encodeCaesar, chr.freq));
     }
     bool unreal = false;
-    int i = 0;
+    // int i = 0;
     HuffTree *temp1, *temp2, *tree;
     while (pq.size() > 1) {
         temp1 = pq.top();
@@ -772,16 +766,16 @@ void restaurant::LAPSE(string name) {
         pq.pop();
         tree = new HuffTree(temp1, temp2);
 
-        cout << "Iteration " << i++ << ":" << endl;
-        cout << "sub tree 1--------------------------------------------------" << endl;
-        temp1->printHuffmanTree(temp1->root());
-        cout << "sub tree 2--------------------------------------------------" << endl;
-        temp2->printHuffmanTree(temp2->root());
+        // cout << "Iteration " << i++ << ":" << endl;
+        // cout << "sub tree 1--------------------------------------------------" << endl;
+        // temp1->printHuffmanTree(temp1->root());
+        // cout << "sub tree 2--------------------------------------------------" << endl;
+        // temp2->printHuffmanTree(temp2->root());
         unreal = tree->rotateTree();
-        cout << "new tree----------------------------------------------------" << endl;
-        tree->printHuffmanTree(tree->root());
-        cout << "------------------------------------------------------------" << endl
-             << endl;
+        // cout << "new tree----------------------------------------------------" << endl;
+        // tree->printHuffmanTree(tree->root());
+        // cout << "------------------------------------------------------------" << endl
+        //      << endl;
 
         pq.push(tree);
         delete (temp1);
@@ -797,7 +791,8 @@ void restaurant::LAPSE(string name) {
     lastCustomer = "";
     tree->getInorderTree(tree->root(), lastCustomer);
     // print Huffman tree
-    // tree->printHuffmanTree(tree->root());
+    tree->printHuffmanTree(tree->root());
+    cout << "------------------------------------------------------------" << endl;
     unordered_map<char, string> list;
     tree->getEncodeList(tree->root(), "", list);
     for (int i = length - 1; i >= 0 && encodeBin.length() < 10; i--) {
@@ -816,14 +811,12 @@ void restaurant::KOKUSEN() {
     vector<int> list;
     for (int i = 1; i <= maxsize; i++) {
         list = gojo->postorder(i);
-        for (auto& num : list) {
-            cout << num << " ";
-        }
-        int size = list.size();
-        if (!size) continue;
-        int numPermute = permutePostOrder(list, size);
-        cout << "Hoan vi: " << numPermute << "\n";
-        numPermute %= maxsize;
+        // for (auto& num : list) {
+        //     cout << num << " ";
+        // }
+        if (!list.size()) continue;
+        unsigned long long numPermute = permutePostOrder(list);
+        if (numPermute > 0) cout << "Hoan vi: " << numPermute << "\n";
         gojo->remove(i, numPermute);
     }
 }
