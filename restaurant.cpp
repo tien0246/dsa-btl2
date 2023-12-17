@@ -492,7 +492,7 @@ class minHeap {
     }
 
     void remove(area* area, int n) {
-        if (area->num < n) {
+        if (area->num <= n) {
             remove(area);
             return;
         }
@@ -816,9 +816,9 @@ void restaurant::KOKUSEN() {
     vector<int> list;
     for (int i = 1; i <= maxsize; i++) {
         list = gojo->postorder(i);
-        // for (auto& num : list) {
-        //     cout << num << " ";
-        // }
+        for (auto& num : list) {
+            cout << num << " ";
+        }
         int size = list.size();
         if (!size) continue;
         int numPermute = permutePostOrder(list, size);
